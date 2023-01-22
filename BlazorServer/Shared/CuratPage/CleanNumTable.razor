@@ -1,0 +1,51 @@
+﻿@using BlazorServer.Data
+@inject DBLibrary.IDataBaseAcces dbAcces
+
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Numele si prenumele</th>
+            <th scope="col">De câte ori a făcut curat</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (cleanNumList != null)
+        {
+            @foreach (var item in cleanNumList)
+            {
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    <td>@item.UserName</td>
+                    <td>@item.CleanCount</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@if (cleanNumList == null)
+{
+    <h4>Tabelul se încarcă</h4>
+}
+else if (cleanNumList.Count == 0)
+{
+    <h4>Tabelul este gol</h4>
+}
+
+@code {
+    private string sql_command = $"SELECT Id, UserName, CleanCount FROM Users";
+    private List<UserNamesAndCleanNum> cleanNumList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            cleanNumList = await dbAcces.LoadData<UserNamesAndCleanNum, dynamic>(sql_command, new { });
+        }
+        catch
+        {
+            
+        }
+    }
+}

@@ -1,0 +1,44 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject ProtectedLocalStorage BrowserStorage
+@inject Data.UserData UData
+
+@using System.Threading
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+
+
+@if (canDrawBody)
+{
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+
+        <div class="main">
+            <div class="content px-4">
+                @Body
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+    private bool canDrawBody = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!UData.IsLoged)
+        {
+            var UserName = await BrowserStorage.GetAsync<string>("UserName");
+            var Password = await BrowserStorage.GetAsync<string>("Password");
+
+            if (UserName.Success && Password.Success)
+            {
+                await UData.TryToLogin(UserName.Value, Password.Value);
+            }
+
+            canDrawBody = true;
+            StateHasChanged();
+        }
+    }
+}

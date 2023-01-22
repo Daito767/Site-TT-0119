@@ -1,0 +1,54 @@
+﻿@page "/luc-lab"
+@using System.Net
+@using System.Net.NetworkInformation
+@using System.Net.Sockets
+
+<h3>În construcție :)</h3>
+@count.ToString()
+@end.ToString()
+@GetLocalIPv4(NetworkInterfaceType.Wireless80211)
+
+@code {
+	private int count = 0;
+	private bool end = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		Work();
+		end = true;
+	}
+
+	//async void RunAsync()
+	//{
+	//	await Task.Run(async () => Work());
+	//}
+
+	async void Work()
+	{
+		while (true)
+		{
+			count++;
+			StateHasChanged();
+			await Task.Delay(1000);
+		}
+	}
+
+	public string GetLocalIPv4(NetworkInterfaceType _type)
+	{
+		string output = "";
+		foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
+		{
+			if (item.NetworkInterfaceType == _type && item.OperationalStatus == OperationalStatus.Up)
+			{
+				foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
+				{
+					if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+					{
+						output = ip.Address.ToString();
+					}
+				}
+			}
+		}
+		return output;
+	}
+}

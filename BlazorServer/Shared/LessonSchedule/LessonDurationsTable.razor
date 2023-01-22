@@ -1,0 +1,53 @@
+﻿@using Data
+
+<table class="table">
+	<thead class="thead-dark">
+		<tr>
+			<th scope="col">Perechea</th>
+			<th scope="col">Durata</th>
+			<th scope="col">Subgrupa</th>
+		</tr>
+	</thead>
+	<tbody>
+		@if (lessonDurations != null)
+		{
+			@foreach (var item in lessonDurations)
+			{
+				<tr>
+					<th scope="row">@item.LessonNumber</th>
+					<td>@TimeFormat(@item.Start) - @TimeFormat(@item.End)</td>
+					<td>@item.Shift</td>
+				</tr>
+			}
+		}
+	</tbody>
+</table>
+
+@if (lessonDurations == null)
+{
+	<h4>Tabelul se încarcă</h4>
+}
+else if (lessonDurations.Count == 0)
+{
+	<h4>Tabelul este gol</h4>
+}
+
+@code {
+	[Parameter] public List<LessonDuration> lessonDurations { get; set; }
+
+	private string TimeFormat(int minutes)
+	{
+		return $"{TimeLengthFormat(minutes / 60)}:{TimeLengthFormat(minutes % 60)}";
+	}
+
+	private string TimeLengthFormat(int num)
+	{
+		string str_num = num.ToString();
+		if (str_num.Length == 1)
+		{
+			return "0" + str_num;
+		}
+		return str_num;
+	}
+
+}

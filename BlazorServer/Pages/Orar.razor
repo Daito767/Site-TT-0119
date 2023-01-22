@@ -1,0 +1,245 @@
+﻿@page "/orar/{tab?}"
+
+@using BlazorServer.Shared.LessonSchedule
+@using Data
+@using System.Globalization
+
+@inject DBLibrary.IDataBaseAcces dbAcces
+@inject Data.LiveSchedule LiveSchedule
+@inject Data.UserData UData
+
+<ul class="nav nav-tabs">
+	<li class="nav-item">
+		<a class="nav-link @CheckNavLinkState("principal")" href="/orar/principal">Principal</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link @CheckNavLinkState("5days")" href="orar/5days">5 zile inainte</a>
+	</li>
+	@if (UData.IsLoged)
+	{
+		<li class="nav-item">
+		<a class="nav-link" href="/orar-edit/">Editeaza orarul</a>
+		</li>
+	}
+</ul>
+
+<div class="d-flex justify-content-around flex-wrap text-center align-self-start">
+	@if (tab == "principal")
+	{
+		<div class="p-2" >
+			<h5>Orarul de ieri</h5>
+			@{
+				temDateTime = GetYesterdayDay();
+				dayOfWeek = GetDayOfWeek(temDateTime);
+				parity = GetParityOfWeek(temDateTime);
+			}
+			<div class="d-flex" style="margin-bottom: -1px;">
+				<div class="p-1 pl-2 pr-2 bg-dark text-white">
+					<span class="text-warning">@weekDayNames[dayOfWeek]</span> @temDateTime.Day @monthNames[temDateTime.Month - 1]
+				</div>
+
+				<div class="ml-1 align-self-end">
+					In săptămână <span class="text-primary">@parityNames[parity]</span>
+				</div>
+			</div>
+			<LessonScheduleTable invertParity=@invertParity weekParity=@parity lessons=@lessons dayOfWeek=@dayOfWeek/>
+		</div>
+
+		@if (LiveSchedule.Day < 5)
+		{
+			<div class="p-2">
+				<h5>Orarul de azi</h5>
+				<table class="table">
+					<thead class="thead-dark">
+						<tr>
+							<th scope="col">Perechea</th>
+							<th scope="col">Disciplina</th>
+							<th scope="col">Durata</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in LiveSchedule.LiveLessons)
+						{
+							if (item.LessonNumber == LiveSchedule.CurrentLesson)
+							{
+								<tr class="table-primary">
+									<th scope="row">@item.LessonNumber</th>
+									<td>@item.LessonName</td>
+									<th>@item.State</th>
+								</tr>
+							}
+							else
+							{
+								<tr>
+									<th scope="row">@item.LessonNumber</th>
+									<td>@item.LessonName</td>
+									<td>@item.State</td>
+								</tr>	
+							}
+						}
+					</tbody>
+				</table>
+
+				@if (LiveSchedule.LiveLessons is null)
+				{
+					<h4>Tabelul se încarcă</h4>
+				}
+				else if (LiveSchedule.LiveLessons.Count == 0)
+				{
+					<h4>Tabelul este gol</h4>
+				}
+			</div>
+			@ReloadRenderPage(LiveSchedule.SleepDelay)
+		}
+		<div class="p-2" >
+			<h5>Orarul de maine</h5>
+			@{
+				temDateTime = GetTomorrowDay();
+				dayOfWeek = GetDayOfWeek(temDateTime);
+				parity = GetParityOfWeek(temDateTime);
+			}
+
+			<div class="d-flex" style="margin-bottom: -1px;">
+				<div class="p-1 pl-2 pr-2 bg-dark text-white">
+					<span class="text-warning">@weekDayNames[dayOfWeek]</span> @temDateTime.Day @monthNames[temDateTime.Month - 1]
+				</div>
+				<div class="ml-1 align-self-end">
+					In săptămână <span class="text-primary">@parityNames[parity]</span>
+				</div>
+			</div>
+			<LessonScheduleTable invertParity=@invertParity weekParity=@parity lessons=@lessons dayOfWeek=@dayOfWeek/>
+		</div>
+
+		<div class="p-2">
+			<h5>Orarul sunetelor</h5>
+			<LessonDurationsTable lessonDurations=@lessonDurations/>
+		</div>
+	}
+	else if (tab == "5days")
+	{
+		n = 0;
+		day_5days = 0;
+		temDateTime = dtNow;
+
+		@while (day_5days < 5)
+		{
+			temDateTime = temDateTime.AddDays(1);
+			dayOfWeek = GetDayOfWeek(temDateTime);
+
+			@if (dayOfWeek != (int)NormalDayOfWeek.Saturday && dayOfWeek != (int)NormalDayOfWeek.Sunday)
+			{
+				day_5days++;
+				parity = GetParityOfWeek(temDateTime);
+
+				<div class="p-2" >
+					<div class="d-flex" style="margin-bottom: -1px;">
+						<div class="p-1 pl-2 pr-2 bg-dark text-white">
+							<span class="text-warning">@weekDayNames[dayOfWeek]</span> @temDateTime.Day @monthNames[temDateTime.Month - 1]
+						</div>
+						<div class="ml-1 align-self-end">
+							In săptămână <span class="text-primary">@parityNames[parity]</span>
+						</div>
+					</div>
+					<LessonScheduleTable invertParity=@invertParity weekParity=@parity lessons=@lessons dayOfWeek=@dayOfWeek/>
+				</div>
+			}
+
+			n++;
+		}
+	}
+</div>
+
+@{/* WARNING: Delete for relese. */}
+@LiveSchedule.dtNow.ToString()
+@LiveSchedule.SleepDelay
+
+@code {
+	[Parameter] public string tab { get; set; }
+	private List<LessonFromSchedule> lessons;
+	private List<LessonDuration> lessonDurations;
+	private bool invertParity = false;
+	private string[] weekDayNames = new string [] { "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sambătă", "Duminică"};
+	private string[] monthNames = new string [] { "ianuarie", "februarie", "martie", "aprilie", "mai", "iunie", "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"};
+	private string[] parityNames = new string[] { "pară", "impară" };
+	private DateTime dtNow;
+	private DateTime temDateTime;  //Este utilizata pentru codul din partea cu html
+	private int dayOfWeek;
+	private int parity;
+	private int day_5days;
+	private int n;
+	private int i;
+
+	protected override void OnInitialized()
+	{
+		tab = tab ?? "principal";
+
+		dtNow = LiveSchedule.dtNow;
+
+		lessonDurations = LiveSchedule.LessonDurations;
+		lessons = LiveSchedule.AllLessons;
+		invertParity = LiveSchedule.InvertParity;
+	}
+
+	private string ReloadRenderPage(int delay)
+	{
+		Task.Run(async () => { await Task.Delay(delay); await InvokeAsync(() => StateHasChanged());});
+		return "";
+	}
+
+	private int GetDayOfWeek(DateTime dt)
+	{
+		int day = (int)dt.DayOfWeek;
+		return  day > 0 ? day - 1 : 6;
+	}
+
+	private int GetParityOfWeek(DateTime dt)
+	{
+		int weekParity = ISOWeek.GetWeekOfYear(dt) % 2;
+		if (invertParity)
+		{
+			weekParity = weekParity == 0 ? 1 : 0;
+		}
+		return weekParity;
+	}
+
+	private string CheckNavLinkState(string name)
+	{
+		if (name == tab)
+		{
+			return "active";
+		}
+		return "";
+	}
+
+	private DateTime GetTomorrowDay()
+	{
+		int delta = 1;
+		if (GetDayOfWeek(dtNow) == 5)
+		{
+			delta = 2;
+		}
+		if (GetDayOfWeek(dtNow) == 4)
+		{
+			delta = 3;
+		}
+
+		DateTime _dtNow = dtNow;
+		return _dtNow.AddDays(delta);
+	}
+
+	private DateTime GetYesterdayDay()
+	{
+		int delta = -1;
+		if (GetDayOfWeek(dtNow) == 6)
+		{
+			delta = -2;
+		}
+		else if (GetDayOfWeek(dtNow) == 0)
+		{
+			delta = -3;
+		}
+
+		DateTime _dtNow = dtNow;
+		return _dtNow.AddDays(delta);
+	}
+}

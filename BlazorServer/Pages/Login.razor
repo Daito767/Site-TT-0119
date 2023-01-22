@@ -1,0 +1,62 @@
+﻿@page "/login"
+@inject Data.UserData UData
+@inject ProtectedLocalStorage BrowserStorage
+
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+
+
+@if (!UData.IsLoged)
+{
+    <div>
+        <div class="form-group">
+            <label for="InputuserName">Numele de utilizator</label>
+            <input type="text" class="form-control" id="InputuserName" aria-describedby="userNameHelp" placeholder="Introduceți numele de utilizator" @bind="userName">
+            <small id="userNameHelp" class="form-text text-danger">Introduceți aici numele și prenumele fără semne diacritice.</small>
+        </div>
+        <div class="form-group">
+            <label for="InputPassword">Parola</label>
+            <input type="password" class="form-control" id="InputPassword" placeholder="Introduceți parola" @bind="password">
+        </div>
+        <button class="btn btn-primary" @onclick="TryToLogin">Autentifică</button>
+    </div>
+}
+else
+{
+    <div class="alert alert-success" role="alert">
+        V-ați autentificat cu succes.
+    </div>
+}
+
+@if (error)
+{
+    <div class="alert alert-danger mt-3" role="alert">
+        Parola sau numele de utilizator pot fi incorect.
+    </div>
+}
+
+@code {
+    private string userName { get; set; }
+    private string password { get; set; }
+    private bool error { get; set; }
+
+    private async void TryToLogin()
+    {
+        await UData.TryToLogin(userName, password);
+
+        @if (UData.IsLoged)
+        {
+            SaveLoginData();
+        }
+    }
+
+    private async void SaveLoginData()
+    {
+        await BrowserStorage.SetAsync("UserName", userName);
+        await BrowserStorage.SetAsync("Password", password);
+    }
+
+    //protected override void OnAfterRender(bool firstRender)
+    //{
+    //    StateHasChanged();
+    //}
+}

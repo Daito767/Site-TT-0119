@@ -1,0 +1,54 @@
+﻿@using BlazorServer.Data
+@inject DBLibrary.IDataBaseAcces dbAcces
+
+<table class="table">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Participanți</th>
+            <th scope="col">Data și ora</th>
+            <th scope="col">Comentariul</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (cleanLogs != null)
+        {
+            @foreach (var item in cleanLogs)
+            {
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    <td>@item.Participants</td>
+                    <td>@item.DateTime.ToString("dd.MM.yyyy HH:mm")</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@if (cleanLogs == null)
+{
+    <h4>Tabelul se încarcă</h4>
+}
+else if (cleanLogs.Count == 0)
+{
+    <h4>Tabelul este gol</h4>
+}
+
+@code {
+    private string sql_command = $"SELECT * FROM `ClassroomCleaningLogs`";
+
+    private List<CleanLog> cleanLogs;
+
+    private bool dbError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            cleanLogs = await dbAcces.LoadData<CleanLog, dynamic>(sql_command, new { });
+        }
+        catch
+        {
+        }
+    }
+}

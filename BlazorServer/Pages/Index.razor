@@ -1,0 +1,27 @@
+﻿@page "/"
+
+<h1>Salut, acesta este site-ul grupei TT-0119</h1>
+
+În construcție :)
+
+
+@*@using BlazorServer.Data
+@inject BrowserService Service
+
+
+<h1>Window Dimensions</h1>
+
+<button class="btn btn-primary" @onclick="OnButtonClick">Get Dimensions</button>
+<br />
+<br />
+
+<p>Window Height: @BrowserDimension.Height</p>
+<p>Window Width: @BrowserDimension.Width</p>
+
+@code {
+
+public Data.BrowserDimension BrowserDimension;
+
+private async Task OnButtonClick()
+{
+    BrowserDimension = await Service.GetDimensions();*@

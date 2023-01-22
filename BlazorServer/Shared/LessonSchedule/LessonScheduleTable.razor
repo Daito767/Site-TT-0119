@@ -1,0 +1,44 @@
+﻿@using Data
+@using System.Globalization
+
+<table class="table">
+	<thead class="thead-dark">
+		<tr>
+			<th scope="col">Perechea</th>
+			<th scope="col">Disciplina</th>
+		</tr>
+	</thead>
+	<tbody>
+		@if (lessons != null)
+		{
+			@foreach (var item in lessons)
+			{
+				@if (item.Day == dbWeekDayNames[dayOfWeek] && (item.Parity == weekParity || item.Parity == -5)) //-5 inseamna null, adica lectia este in ambele saptamaini.
+				{
+					<tr>
+						<th scope="row">@item.LessonNumber</th>
+						<td>@item.LessonName</td>
+					</tr>
+				}
+			}
+		}
+	</tbody>
+</table>
+
+@if (lessons == null)
+{
+	<h4>Tabelul se încarcă</h4>
+}
+else if (lessons.Count == 0)
+{
+	<h4>Tabelul este gol</h4>
+}
+
+@code {
+	[Parameter] public List<LessonFromSchedule> lessons { get; set; }
+	[Parameter] public bool invertParity { get; set; }
+	[Parameter] public int weekParity { get; set; }
+	[Parameter] public int dayOfWeek { get; set; }
+
+	private string[] dbWeekDayNames = new string [] { "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sambata", "Duminica"};
+}

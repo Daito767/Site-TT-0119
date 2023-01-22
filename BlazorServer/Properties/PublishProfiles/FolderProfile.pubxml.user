@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>\\DESKTOP-HCTKET8\inetpub\wwwroot\TT-0119 Server</_PublishTargetUrl>
+    <History>True|2022-02-21T12:06:17.1382475Z;True|2022-02-21T14:03:58.6374634+02:00;False|2022-02-21T14:02:39.7120075+02:00;False|2022-02-21T14:02:14.4550210+02:00;True|2022-02-21T13:56:00.4586167+02:00;False|2022-02-19T20:58:07.5451806+02:00;False|2022-02-19T20:57:16.6803609+02:00;True|2022-02-19T20:54:30.4366963+02:00;True|2022-02-19T18:51:25.2758947+02:00;True|2022-02-19T18:41:02.7136445+02:00;False|2022-02-19T18:37:56.5309662+02:00;True|2022-02-19T18:03:56.8368061+02:00;True|2022-02-19T16:59:44.4205037+02:00;True|2022-02-19T16:55:52.5732838+02:00;False|2022-02-19T16:53:21.1994441+02:00;True|2022-02-19T16:45:12.4707664+02:00;</History>
+  </PropertyGroup>
+</Project>

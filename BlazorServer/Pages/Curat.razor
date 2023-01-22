@@ -1,0 +1,46 @@
+﻿@page "/curat/{tab?}"
+@using BlazorServer.Shared.CuratPage
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link @CheckNavLinkState("clean_count")" href="curat/clean_count">Lista elevilor</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @CheckNavLinkState("now")" href="curat/now">Acum</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @CheckNavLinkState("edit")" href="curat/edit">Editeaza</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @CheckNavLinkState("logs")" href="curat/logs">Toate inregistrarile</a>
+    </li>
+</ul>
+
+@if (tab == "clean_count")
+{
+    <div class="pt-3"><CleanNumTable /></div>		 
+}
+else if (tab == "logs")
+{
+    <div class="pt-3"><ClassroomCleaningLogs /></div>
+}
+
+
+@code {
+    [Parameter]
+    public string tab { get; set; } = "clean_count";
+
+    protected override void OnInitialized()
+    {
+        tab = tab ?? "clean_count";
+    }
+
+    private string CheckNavLinkState(string name)
+    {
+        if (name == tab)
+        {
+            return "active";
+        }
+        return "";
+    }
+}
